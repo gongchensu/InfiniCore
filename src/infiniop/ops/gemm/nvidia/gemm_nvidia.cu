@@ -70,8 +70,6 @@ infiniStatus_t Descriptor::calculate(
         a_type = b_type = c_type = CUDA_R_32F;
 #if defined(ENABLE_ILUVATAR_API) || defined(ENABLE_HYGON_API)
         compute_type = CUDA_R_32F;
-#elif defined ENABLE_SUGON_CUDA_API
-        compute_type = CUBLAS_COMPUTE_32F;
 #else
         compute_type = CUBLAS_COMPUTE_32F_FAST_TF32;
 #endif

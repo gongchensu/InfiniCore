@@ -1,7 +1,7 @@
 #ifndef __INFINIOP_CUDA_KERNEL_COMMON_CUH__
 #define __INFINIOP_CUDA_KERNEL_COMMON_CUH__
 
-#if defined(ENABLE_SUGON_CUDA_API) || defined(ENABLE_HYGON_API)
+#if defined(ENABLE_HYGON_API)
 #define INFINIOP_CUDA_KERNEL __launch_bounds__(1024) __global__ void
 #else
 #define INFINIOP_CUDA_KERNEL __global__ void

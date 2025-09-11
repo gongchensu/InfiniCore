@@ -134,17 +134,6 @@ if has_config("hygon-dcu") then
     includes("xmake/hygon.lua")
 end
 
--- 曙光DCU (Sugon)
-option("sugon-dcu")
-    set_default(false)
-    set_showmenu(true)
-    set_description("Whether to compile implementations for Sugon DCU")
-option_end()
-
-if has_config("sugon-dcu") then
-    add_defines("ENABLE_SUGON_CUDA_API")
-end
-
 -- 昆仑芯
 option("kunlun-xpu")
     set_default(false)
@@ -250,20 +239,6 @@ target("infiniop")
     end
     if has_config("iluvatar-gpu") then
         add_deps("infiniop-iluvatar")
-    end
-    if has_config("sugon-dcu") then
-        local builddir = string.format(
-            "build/%s/%s/%s",
-            get_config("plat"),
-            get_config("arch"),
-            get_config("mode")
-        )
-        add_shflags("-s", "-shared", "-fPIC")
-        add_links("cublas", "cudnn", "cudadevrt", "cudart_static", "rt", "pthread", "dl")
-        -- Using -linfiniop-nvidia will fail, manually link the target using full path
-        add_deps("nv-gpu", {inherit = false})
-        add_links(builddir.."/libinfiniop-nvidia.a")
-        set_toolchains("sugon-dcu-linker")
     end
 
     if has_config("cambricon-mlu") then
