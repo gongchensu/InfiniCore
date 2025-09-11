@@ -122,7 +122,19 @@ if has_config("moore-gpu") then
     includes("xmake/moore.lua")
 end
 
--- 海光
+-- 海光DCU
+option("hygon-dcu")
+    set_default(false)
+    set_showmenu(true)
+    set_description("Whether to compile implementations for Hygon DCU")
+option_end()
+
+if has_config("hygon-dcu") then
+    add_defines("ENABLE_HYGON_API")
+    includes("xmake/hygon.lua")
+end
+
+-- 曙光DCU (Sugon)
 option("sugon-dcu")
     set_default(false)
     set_showmenu(true)
@@ -217,6 +229,9 @@ target("infinirt")
     if has_config("kunlun-xpu") then
         add_deps("infinirt-kunlun")
     end
+    if has_config("hygon-dcu") then
+        add_deps("infinirt-hygon")
+    end
     set_languages("cxx17")
     set_installdir(os.getenv("INFINI_ROOT") or (os.getenv(is_host("windows") and "HOMEPATH" or "HOME") .. "/.infini"))
     add_files("src/infinirt/*.cc")
@@ -266,6 +281,9 @@ target("infiniop")
     if has_config("kunlun-xpu") then
         add_deps("infiniop-kunlun")
     end
+    if has_config("hygon-dcu") then
+        add_deps("infiniop-hygon")
+    end
     set_languages("cxx17")
     add_files("src/infiniop/devices/handle.cc")
     add_files("src/infiniop/ops/*/operator.cc")
@@ -300,6 +318,9 @@ target("infiniccl")
 
     if has_config("moore-gpu") then
         add_deps("infiniccl-moore")
+    end
+    if has_config("hygon-dcu") then
+        add_deps("infiniccl-hygon")
     end
     
     set_languages("cxx17")

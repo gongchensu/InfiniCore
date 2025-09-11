@@ -8,6 +8,7 @@ class InfiniDeviceEnum:
     ILUVATAR = 6
     KUNLUN = 7
     SUGON = 8
+    HYGON = 9
 
 
 InfiniDeviceNames = {
@@ -20,6 +21,7 @@ InfiniDeviceNames = {
     InfiniDeviceEnum.ILUVATAR: "Iluvatar",
     InfiniDeviceEnum.KUNLUN: "Kunlun",
     InfiniDeviceEnum.SUGON: "Sugon",
+    InfiniDeviceEnum.HYGON: "Hygon",
 }
 
 # Mapping that maps InfiniDeviceEnum to torch device string
@@ -33,4 +35,5 @@ torch_device_map = {
     InfiniDeviceEnum.ILUVATAR: "cuda",
     InfiniDeviceEnum.KUNLUN: "cuda",
     InfiniDeviceEnum.SUGON: "cuda",
+    InfiniDeviceEnum.HYGON: "cuda",
 }
