@@ -20,6 +20,9 @@
 #ifdef ENABLE_MOORE_API
 #include "moore/gemm_moore.h"
 #endif
+#ifdef ENABLE_HYGON_API
+#include "hygon/gemm_hygon.h"
+#endif
 #ifdef ENABLE_KUNLUN_API
 #include "kunlun/gemm_kunlun.h"
 #endif
@@ -65,6 +68,9 @@ __C infiniStatus_t infiniopCreateGemmDescriptor(
 #endif
 #ifdef ENABLE_MOORE_API
         CREATE(INFINI_DEVICE_MOORE, moore);
+#endif
+#ifdef ENABLE_HYGON_API
+        CREATE(INFINI_DEVICE_HYGON, hygon);
 #endif
 
 #ifdef ENABLE_KUNLUN_API
@@ -113,6 +119,9 @@ infiniopGetGemmWorkspaceSize(
 #endif
 #ifdef ENABLE_MOORE_API
         GET(INFINI_DEVICE_MOORE, moore);
+#endif
+#ifdef ENABLE_HYGON_API
+        GET(INFINI_DEVICE_HYGON, hygon);
 #endif
 #ifdef ENABLE_KUNLUN_API
         GET(INFINI_DEVICE_KUNLUN, kunlun);
@@ -169,6 +178,9 @@ __C infiniStatus_t infiniopGemm(
 #ifdef ENABLE_MOORE_API
         CALCULATE(INFINI_DEVICE_MOORE, moore);
 #endif
+#ifdef ENABLE_HYGON_API
+        CALCULATE(INFINI_DEVICE_HYGON, hygon);
+#endif
 #ifdef ENABLE_KUNLUN_API
         CALCULATE(INFINI_DEVICE_KUNLUN, kunlun);
 #endif
@@ -213,6 +225,9 @@ infiniopDestroyGemmDescriptor(infiniopGemmDescriptor_t desc) {
 #endif
 #ifdef ENABLE_MOORE_API
         DELETE(INFINI_DEVICE_MOORE, moore);
+#endif
+#ifdef ENABLE_HYGON_API
+        DELETE(INFINI_DEVICE_HYGON, hygon);
 #endif
 #ifdef ENABLE_KUNLUN_API
         DELETE(INFINI_DEVICE_KUNLUN, kunlun);

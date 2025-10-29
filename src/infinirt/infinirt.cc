@@ -4,6 +4,7 @@
 #include "bang/infinirt_bang.h"
 #include "cpu/infinirt_cpu.h"
 #include "cuda/infinirt_cuda.cuh"
+#include "hip/infinirt_hip.cuh"
 #include "kunlun/infinirt_kunlun.h"
 #include "metax/infinirt_metax.h"
 #include "moore/infinirt_moore.h"
@@ -78,7 +79,7 @@ __C infiniStatus_t infinirtGetDevice(infiniDevice_t *device_ptr, int *device_id_
             _status = infinirt::cuda::API PARAMS;                      \
             break;                                                     \
         case INFINI_DEVICE_HYGON:                                      \
-            _status = infinirt::cuda::API PARAMS;                      \
+            _status = infinirt::hip::API PARAMS;                       \
             break;                                                     \
         default:                                                       \
             _status = INFINI_STATUS_DEVICE_TYPE_NOT_SUPPORTED;         \

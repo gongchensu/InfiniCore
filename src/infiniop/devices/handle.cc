@@ -5,8 +5,11 @@
 #ifdef ENABLE_CPU_API
 #include "cpu/cpu_handle.h"
 #endif
-#if defined(ENABLE_NVIDIA_API) || defined(ENABLE_ILUVATAR_API) || defined(ENABLE_HYGON_API)
+#if defined(ENABLE_NVIDIA_API) || defined(ENABLE_ILUVATAR_API)
 #include "nvidia/nvidia_handle.h"
+#endif
+#ifdef ENABLE_HYGON_API
+#include "hygon/hygon_handle.h"
 #endif
 #ifdef ENABLE_CAMBRICON_API
 #include "bang/bang_handle.h"
