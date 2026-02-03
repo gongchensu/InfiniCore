@@ -18,7 +18,7 @@ public:
                infiniopTensorDescriptor_t k_desc,
                infiniopTensorDescriptor_t v_desc,
                infiniopTensorDescriptor_t total_kv_len,
-               double scale,
+               float scale,
                char is_causal) : InfiniopDescriptor{handle->device, handle->device_id},
                                  _query_shape{q_desc->shape()},
                                  _query_strides{q_desc->strides()},
@@ -58,7 +58,7 @@ public:
 
         NineToothedTensor attn_mask{nullptr, empty_shape, empty_strides};
         NineToothedTensor is_causal;
-        NineToothedTensor scale{const_cast<double *>(&_scale), nullptr, nullptr};
+        NineToothedTensor scale{const_cast<float *>(&_scale), nullptr, nullptr};
         auto output{::ninetoothed::Tensor{out, _query_shape, _output_strides}};
         NineToothedTensor with_attn_mask;
         NineToothedTensor causal_variant;
@@ -105,7 +105,7 @@ public:
                                  infiniopTensorDescriptor_t k_desc,
                                  infiniopTensorDescriptor_t v_desc,
                                  infiniopTensorDescriptor_t total_kv_len,
-                                 double scale,
+                                 float scale,
                                  char is_causal) {
         *desc = new Descriptor{handle, out_desc, q_desc, k_desc, v_desc, total_kv_len, scale, is_causal};
 
@@ -137,7 +137,7 @@ private:
 
     infiniDtype_t _dtype;
 
-    double _scale;
+    float _scale;
 
     char _is_causal;
 };

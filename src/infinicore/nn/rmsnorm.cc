@@ -30,6 +30,7 @@ void RMSNorm::forward_inplace(Tensor &x, Tensor &residual) const {
             || device_.getType() == Device::Type::NVIDIA
             || device_.getType() == Device::Type::ILUVATAR
             || device_.getType() == Device::Type::METAX
+            || device_.getType() == Device::Type::HYGON
             || device_.getType() == Device::Type::MOORE) {
             op::add_rms_norm_inplace(x, residual, weight_, static_cast<float>(eps_));
         } else {

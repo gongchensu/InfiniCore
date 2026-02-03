@@ -30,7 +30,7 @@ __device__ __forceinline__ float warpReduceMax(float x) {
 }
 
 __device__ __forceinline__ unsigned int cvtaToShared(const void *ptr) {
-#if defined(ENABLE_ILUVATAR_API)
+#if defined(ENABLE_ILUVATAR_API) || defined(ENABLE_HYGON_API)
     return static_cast<unsigned int>(reinterpret_cast<uintptr_t>(ptr));
 #else
     return static_cast<unsigned int>(__cvta_generic_to_shared(ptr));

@@ -71,7 +71,11 @@ __C infiniStatus_t infiniopCreateSwiGLUDescriptor(
         CREATE(INFINI_DEVICE_QY, nvidia);
 #endif
 #ifdef ENABLE_HYGON_API
+#ifdef ENABLE_NINETOOTHED
+        CREATE(INFINI_DEVICE_HYGON, ninetoothed);
+#else
         CREATE(INFINI_DEVICE_HYGON, nvidia);
+#endif
 #endif
 #ifdef ENABLE_KUNLUN_API
         CREATE(INFINI_DEVICE_KUNLUN, kunlun);
@@ -129,7 +133,11 @@ __C infiniStatus_t infiniopGetSwiGLUWorkspaceSize(infiniopSwiGLUDescriptor_t des
         GET(INFINI_DEVICE_QY, nvidia);
 #endif
 #ifdef ENABLE_HYGON_API
+#ifdef ENABLE_NINETOOTHED
+        GET(INFINI_DEVICE_HYGON, ninetoothed);
+#else
         GET(INFINI_DEVICE_HYGON, nvidia);
+#endif
 #endif
 #ifdef ENABLE_KUNLUN_API
         GET(INFINI_DEVICE_KUNLUN, kunlun);
@@ -194,7 +202,11 @@ __C infiniStatus_t infiniopSwiGLU(
         CALCULATE(INFINI_DEVICE_QY, nvidia);
 #endif
 #ifdef ENABLE_HYGON_API
+#ifdef ENABLE_NINETOOTHED
+        CALCULATE(INFINI_DEVICE_HYGON, ninetoothed);
+#else
         CALCULATE(INFINI_DEVICE_HYGON, nvidia);
+#endif
 #endif
 #ifdef ENABLE_KUNLUN_API
         CALCULATE(INFINI_DEVICE_KUNLUN, kunlun);
@@ -254,7 +266,11 @@ infiniopDestroySwiGLUDescriptor(infiniopSwiGLUDescriptor_t desc) {
         DELETE(INFINI_DEVICE_QY, nvidia);
 #endif
 #ifdef ENABLE_HYGON_API
+#ifdef ENABLE_NINETOOTHED
+        DELETE(INFINI_DEVICE_HYGON, ninetoothed);
+#else
         DELETE(INFINI_DEVICE_HYGON, nvidia);
+#endif
 #endif
 #ifdef ENABLE_KUNLUN_API
         DELETE(INFINI_DEVICE_KUNLUN, kunlun);

@@ -54,8 +54,10 @@ target("infiniop-hygon")
         add_linkdirs(path.join(dtk_root, "cuda", "lib64"))
     end
 
+    set_languages("cxx17")  -- ninetoothed.h requires C++17 (e.g. std::shared_mutex)
     set_warnings("all", "error")
     add_cuflags("-Wno-error=unused-private-field")
+    add_cuflags("-Wno-error=unused-variable")
     add_cuflags("-Wno-return-type", {force = true})  -- 抑制return语句警告
     add_cuflags("-fPIC", "-std=c++17", {force = true})
     add_culdflags("-fPIC")
@@ -72,7 +74,14 @@ target("infiniop-hygon")
     add_files("../src/infiniop/devices/nvidia/*.cu", "../src/infiniop/ops/*/nvidia/*.cu")
 
     if has_config("ninetoothed") then
-        add_files("../build/ninetoothed/*.c", "../build/ninetoothed/*.cpp", {cxxflags = {"-Wno-return-type"}})
+        -- ninetoothed AOT code includes HIP after patch_dcu; need platform macro and CUdeviceptr compat
+        local ninetoothed_hip_compat = path.join(os.projectdir(), "xmake", "ninetoothed_hip_compat.h")
+        -- -include and path must be one token so xmake's -MMD is not taken as -include's argument
+        local include_compat = "-include " .. ninetoothed_hip_compat
+        add_files("../build/ninetoothed/*.c", "../build/ninetoothed/*.cpp", {
+            cflags = {"-Wno-return-type", "-D__HIP_PLATFORM_AMD__=1", include_compat},
+            cxxflags = {"-Wno-return-type", "-D__HIP_PLATFORM_AMD__=1", include_compat},
+        })
     end
 target_end()
 
@@ -97,6 +106,7 @@ target("infinirt-hygon")
     end
 
     set_warnings("all", "error")
+    add_cuflags("-Wno-error=unused-variable")
     add_cuflags("-Wno-return-type", {force = true})  -- 抑制return语句警告
     add_cuflags("-fPIC", "-std=c++17", {force = true})
     add_culdflags("-fPIC")
@@ -133,6 +143,7 @@ target("infiniccl-hygon")
         end
 
         set_warnings("all", "error")
+        add_cuflags("-Wno-error=unused-variable")
         add_cuflags("-Wno-return-type", {force = true})  -- 抑制return语句警告
         add_cuflags("-fPIC", "-std=c++17", {force = true})
         add_culdflags("-fPIC")

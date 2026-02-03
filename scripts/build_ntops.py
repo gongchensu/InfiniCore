@@ -1,6 +1,11 @@
 import concurrent.futures
 import importlib
 import pathlib
+import multiprocessing
+try:
+    multiprocessing.set_start_method('spawn', force=True)
+except RuntimeError:
+    pass
 
 from infiniop.ninetoothed.build import BUILD_DIRECTORY_PATH
 

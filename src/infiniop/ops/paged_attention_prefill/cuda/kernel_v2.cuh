@@ -2301,7 +2301,7 @@ __device__ void PagedAttentionPrefillWarpCta8MmaHd128Kernel(
         }
         __syncthreads();
 
-#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 700)
+#if defined(ENABLE_NVIDIA_API) && defined(__CUDA_ARCH__) && (__CUDA_ARCH__ >= 700)
         // WMMA: each warp computes scores for 16 keys (one 16-column slice of the K tile) across all 16 rows.
         // For kBlockN=64, only the first 4 warps participate in WMMA score computation.
         namespace wmma = nvcuda::wmma;

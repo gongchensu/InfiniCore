@@ -247,7 +247,8 @@ def premake(
     present_key, present_value, present_key_slot, present_value_slot = (
         Tensor(4, dtype=dtype) for _ in range(4)
     )
-    scale = Tensor(0, dtype=ninetoothed.float64)
+    # Use float32 for scale: AMD/Hygon DCU Triton backend only supports F32 for TruncFOp, not F64.
+    scale = Tensor(0, dtype=ninetoothed.float32)
     is_causal = Tensor(0, constexpr=True, value=is_causal)
     with_attn_mask = Tensor(0, constexpr=True, value=with_attn_mask)
     causal_variant = Tensor(0, constexpr=True, value=causal_variant)

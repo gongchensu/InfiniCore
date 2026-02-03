@@ -2,7 +2,7 @@
 #include "../../handle.h"
 #include "infiniop/ops/paged_attention_prefill.h"
 
-#if defined(ENABLE_NVIDIA_API) || defined(ENABLE_ILUVATAR_API)
+#if defined(ENABLE_NVIDIA_API) || defined(ENABLE_ILUVATAR_API) || defined(ENABLE_HYGON_API)
 #include "nvidia/paged_attention_prefill_nvidia.cuh"
 #endif
 #ifdef ENABLE_METAX_API
@@ -42,6 +42,9 @@ __C infiniStatus_t infiniopCreatePagedAttentionPrefillDescriptor(
 #ifdef ENABLE_ILUVATAR_API
         CREATE(INFINI_DEVICE_ILUVATAR, nvidia)
 #endif
+#ifdef ENABLE_HYGON_API
+        CREATE(INFINI_DEVICE_HYGON, nvidia)
+#endif
     default:
         return INFINI_STATUS_DEVICE_TYPE_NOT_SUPPORTED;
     }
@@ -65,6 +68,9 @@ __C infiniStatus_t infiniopGetPagedAttentionPrefillWorkspaceSize(
 #endif
 #ifdef ENABLE_ILUVATAR_API
         GET(INFINI_DEVICE_ILUVATAR, nvidia)
+#endif
+#ifdef ENABLE_HYGON_API
+        GET(INFINI_DEVICE_HYGON, nvidia)
 #endif
     default:
         return INFINI_STATUS_DEVICE_TYPE_NOT_SUPPORTED;
@@ -97,6 +103,9 @@ __C infiniStatus_t infiniopPagedAttentionPrefill(
 #ifdef ENABLE_ILUVATAR_API
         CALCULATE(INFINI_DEVICE_ILUVATAR, nvidia)
 #endif
+#ifdef ENABLE_HYGON_API
+        CALCULATE(INFINI_DEVICE_HYGON, nvidia)
+#endif
     default:
         return INFINI_STATUS_DEVICE_TYPE_NOT_SUPPORTED;
     }
@@ -119,6 +128,9 @@ __C infiniStatus_t infiniopDestroyPagedAttentionPrefillDescriptor(
 #endif
 #ifdef ENABLE_ILUVATAR_API
         DESTROY(INFINI_DEVICE_ILUVATAR, nvidia)
+#endif
+#ifdef ENABLE_HYGON_API
+        DESTROY(INFINI_DEVICE_HYGON, nvidia)
 #endif
     default:
         return INFINI_STATUS_DEVICE_TYPE_NOT_SUPPORTED;
