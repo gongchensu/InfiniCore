@@ -5,8 +5,11 @@
 #ifdef ENABLE_CPU_API
 #include "cpu/gemm_cpu.h"
 #endif
-#if defined(ENABLE_NVIDIA_API) || defined(ENABLE_ILUVATAR_API) || defined(ENABLE_QY_API) || defined(ENABLE_HYGON_API)
+#if defined(ENABLE_NVIDIA_API) || defined(ENABLE_ILUVATAR_API) || defined(ENABLE_QY_API)
 #include "nvidia/gemm_nvidia.cuh"
+#endif
+#ifdef ENABLE_HYGON_API
+#include "hygon/gemm_hygon.h"
 #endif
 #ifdef ENABLE_CAMBRICON_API
 #include "bang/gemm_bang.h"
@@ -55,7 +58,7 @@ __C infiniStatus_t infiniopCreateGemmDescriptor(
         CREATE(INFINI_DEVICE_QY, nvidia);
 #endif
 #ifdef ENABLE_HYGON_API
-        CREATE(INFINI_DEVICE_HYGON, nvidia);
+        CREATE(INFINI_DEVICE_HYGON, hygon);
 #endif
 #ifdef ENABLE_CAMBRICON_API
         CREATE(INFINI_DEVICE_CAMBRICON, bang);
@@ -106,7 +109,7 @@ infiniopGetGemmWorkspaceSize(
         GET(INFINI_DEVICE_QY, nvidia);
 #endif
 #ifdef ENABLE_HYGON_API
-        GET(INFINI_DEVICE_HYGON, nvidia);
+        GET(INFINI_DEVICE_HYGON, hygon);
 #endif
 #ifdef ENABLE_CAMBRICON_API
         GET(INFINI_DEVICE_CAMBRICON, bang);
@@ -164,7 +167,7 @@ __C infiniStatus_t infiniopGemm(
         CALCULATE(INFINI_DEVICE_QY, nvidia);
 #endif
 #ifdef ENABLE_HYGON_API
-        CALCULATE(INFINI_DEVICE_HYGON, nvidia);
+        CALCULATE(INFINI_DEVICE_HYGON, hygon);
 #endif
 #ifdef ENABLE_CAMBRICON_API
         CALCULATE(INFINI_DEVICE_CAMBRICON, bang);
@@ -212,7 +215,7 @@ infiniopDestroyGemmDescriptor(infiniopGemmDescriptor_t desc) {
         DELETE(INFINI_DEVICE_QY, nvidia);
 #endif
 #ifdef ENABLE_HYGON_API
-        DELETE(INFINI_DEVICE_HYGON, nvidia);
+        DELETE(INFINI_DEVICE_HYGON, hygon);
 #endif
 #ifdef ENABLE_CAMBRICON_API
         DELETE(INFINI_DEVICE_CAMBRICON, bang);

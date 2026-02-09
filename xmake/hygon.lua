@@ -42,8 +42,11 @@ target("infiniop-hygon")
     add_rules("hygon.env")
     set_values("cuda.rdc", false)
 
-    -- 海光DCU使用DTK中的CUDA库
-    add_links("cudart", "cublas", "curand", "cublasLt", "cudnn")
+    set_languages("cxx17")
+    add_cxxflags("-std=c++17", {force = true})
+
+    -- 海光DCU使用DTK中的CUDA库，GEMM 使用 hipBLASLt 厂商库
+    add_links("cudart", "cublas", "curand", "cublasLt", "cudnn", "hipblaslt", "hipblas")
     
     -- 添加DTK路径支持
     local dtk_root = os.getenv("DTK_ROOT") or "/opt/dtk"
@@ -67,8 +70,11 @@ target("infiniop-hygon")
     add_cuflags("-arch=" .. hygon_arch)
     print("编译海光DCU架构: " .. hygon_arch)
     
-    -- 复用NVIDIA的CUDA实现，通过HIP兼容层
+    -- 复用NVIDIA的CUDA实现，通过HIP兼容层；GEMM 使用 hipBLASLt 厂商库
     add_files("../src/infiniop/devices/nvidia/*.cu", "../src/infiniop/ops/*/nvidia/*.cu")
+    add_files("../src/infiniop/ops/gemm/hygon/gemm_hygon.cc", {
+        cxxflags = {"-D__HIP_PLATFORM_AMD__=1", "-Wno-error=unused-private-field"}
+    })
 
     if has_config("ninetoothed") then
         add_files("../build/ninetoothed/*.c", {cxflags = {"-Wno-return-type"}})
