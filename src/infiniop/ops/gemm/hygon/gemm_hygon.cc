@@ -10,6 +10,7 @@
 
 #include <hip/hip_runtime.h>
 #include <hipblaslt/hipblaslt.h>
+#include <mutex>
 
 #define CHECK_HIPBLASLT(API) CHECK_INTERNAL(API, HIPBLAS_STATUS_SUCCESS)
 
@@ -24,6 +25,8 @@ struct Descriptor::Opaque {
     hipblasLtMatrixLayout_t d_layout;
     hipblasLtMatmulAlgo_t algo;
     bool use_heuristic;
+    mutable bool algo_initialized;  // 标记算法是否已初始化
+    mutable std::mutex algo_mutex;  // 保护算法初始化的互斥锁
 };
 
 Descriptor::~Descriptor() {
@@ -150,33 +153,11 @@ infiniStatus_t Descriptor::create(
                                           sizeof(c_stride));
     }
 
-    size_t workspace_size = 0;
+    // 延迟算法查询：仅在首次 calculate 调用时查询算法
+    // 这样可以避免在 Descriptor 创建时的重复查询开销
+    size_t workspace_size = 32 * 1024 * 1024;  // 预分配 workspace
     hipblasLtMatmulAlgo_t algo = {};
     bool use_heuristic = false;
-
-    hipblasLtMatmulPreference_t pref = nullptr;
-    if (hipblasLtMatmulPreferenceCreate(&pref) == HIPBLAS_STATUS_SUCCESS) {
-        uint64_t max_workspace = 32 * 1024 * 1024;
-        hipblasLtMatmulPreferenceSetAttribute(pref,
-                                              HIPBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
-                                              &max_workspace,
-                                              sizeof(max_workspace));
-
-        hipblasLtMatmulHeuristicResult_t heuristic_result;
-        int return_count = 0;
-        hipblasStatus_t h_status = hipblasLtMatmulAlgoGetHeuristic(
-            lt_handle, matmul_desc, a_layout, b_layout, c_layout, d_layout,
-            pref, 1, &heuristic_result, &return_count);
-
-        hipblasLtMatmulPreferenceDestroy(pref);
-
-        if (h_status == HIPBLAS_STATUS_SUCCESS && return_count > 0 &&
-            heuristic_result.state == HIPBLAS_STATUS_SUCCESS) {
-            algo = heuristic_result.algo;
-            workspace_size = heuristic_result.workspaceSize;
-            use_heuristic = true;
-        }
-    }
 
     auto *opaque = new Opaque{
         lt_handle,
@@ -186,7 +167,10 @@ infiniStatus_t Descriptor::create(
         c_layout,
         d_layout,
         algo,
-        use_heuristic};
+        use_heuristic,
+        false,  // algo_initialized = false
+        {}      // algo_mutex
+    };
 
     *desc_ptr = new Descriptor(
         dtype, info, workspace_size,
@@ -211,6 +195,38 @@ infiniStatus_t Descriptor::calculate(
     }
 
     hipStream_t hip_stream = reinterpret_cast<hipStream_t>(stream);
+
+    // 延迟算法查询：首次调用时查询算法，之后复用缓存的算法
+    if (!_opaque->algo_initialized) {
+        std::lock_guard<std::mutex> lock(_opaque->algo_mutex);
+        if (!_opaque->algo_initialized) {
+            hipblasLtMatmulPreference_t pref = nullptr;
+            if (hipblasLtMatmulPreferenceCreate(&pref) == HIPBLAS_STATUS_SUCCESS) {
+                uint64_t max_workspace = workspace_size;
+                hipblasLtMatmulPreferenceSetAttribute(pref,
+                                                      HIPBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
+                                                      &max_workspace,
+                                                      sizeof(max_workspace));
+
+                hipblasLtMatmulHeuristicResult_t heuristic_result;
+                int return_count = 0;
+                hipblasStatus_t h_status = hipblasLtMatmulAlgoGetHeuristic(
+                    _opaque->lt_handle, _opaque->matmul_desc,
+                    _opaque->a_layout, _opaque->b_layout,
+                    _opaque->c_layout, _opaque->d_layout,
+                    pref, 1, &heuristic_result, &return_count);
+
+                hipblasLtMatmulPreferenceDestroy(pref);
+
+                if (h_status == HIPBLAS_STATUS_SUCCESS && return_count > 0 &&
+                    heuristic_result.state == HIPBLAS_STATUS_SUCCESS) {
+                    _opaque->algo = heuristic_result.algo;
+                    _opaque->use_heuristic = true;
+                }
+            }
+            _opaque->algo_initialized = true;
+        }
+    }
 
     const hipblasLtMatmulAlgo_t *algo_ptr =
         _opaque->use_heuristic ? &_opaque->algo : nullptr;

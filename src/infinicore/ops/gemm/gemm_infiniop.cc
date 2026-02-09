@@ -3,7 +3,9 @@
 
 namespace infinicore::op::gemm_impl::infiniop {
 
-INFINIOP_CACHABLE_DESCRIPTOR(Descriptor, Gemm, 100);
+// 增加缓存容量以适应推理场景下的多种 shape
+// 推理时 prefill 和 decode 阶段有不同的 shape，需要更大的缓存
+INFINIOP_CACHABLE_DESCRIPTOR(Descriptor, Gemm, 500);
 
 struct PlannedMeta {
     std::shared_ptr<Descriptor> descriptor;
