@@ -5,8 +5,8 @@
 #include "../../../operator.h"
 #include "../../../tensor.h"
 
-#include "../../../../../build/ninetoothed/flash_attention.h"
 #include "../../../ninetoothed/utils.h"
+#include "../nvidia/flash_attention_v2_nvidia.h"
 
 namespace op::flash_attention::ninetoothed {
 
@@ -48,54 +48,28 @@ public:
                              const void *v,
                              const void *total_kv_len,
                              void *stream) const {
-        uint64_t empty_shape[4];
-        int64_t empty_strides[4];
+        (void)workspace;
+        (void)workspace_size;
 
-        auto query{::ninetoothed::Tensor{q, _query_shape, _query_strides}};
-        auto key{::ninetoothed::Tensor{k, _key_shape, _key_strides}};
-        auto value{::ninetoothed::Tensor{v, _value_shape, _value_strides}};
-        auto total_kv_length{::ninetoothed::Tensor{total_kv_len, _total_kv_shape, _total_kv_strides}};
-
-        NineToothedTensor attn_mask{nullptr, empty_shape, empty_strides};
-        NineToothedTensor is_causal;
-        NineToothedTensor scale{const_cast<double *>(&_scale), nullptr, nullptr};
-        auto output{::ninetoothed::Tensor{out, _query_shape, _output_strides}};
-        NineToothedTensor with_attn_mask;
-        NineToothedTensor causal_variant;
-
-        const auto with_kv_cache_{0};
-        const auto emb_dim_{_query_shape[3]};
-        const auto is_causal_{_is_causal};
-        const auto with_attn_mask_{0};
-        const auto causal_variant_{2};
-        const auto dtype_{_dtype};
-
-        constexpr auto block_size_m_{256};
-        constexpr auto block_size_n_{64};
-
-        if (launch_flash_attention(stream,
-                                   query,
-                                   key,
-                                   value,
-                                   total_kv_length,
-                                   attn_mask,
-                                   is_causal,
-                                   scale,
-                                   output,
-                                   with_attn_mask,
-                                   causal_variant,
-                                   with_kv_cache_,
-                                   emb_dim_,
-                                   is_causal_,
-                                   with_attn_mask_,
-                                   causal_variant_,
-                                   dtype_,
-                                   block_size_m_,
-                                   block_size_n_)) {
-            return INFINI_STATUS_NOT_IMPLEMENTED;
-        }
-
-        return INFINI_STATUS_SUCCESS;
+        // Directly call our FlashAttention v2 CUDA launcher.
+        return flash_attention_v2_cuda_launcher(
+            out,
+            q,
+            k,
+            v,
+            total_kv_len,
+            _query_shape.data(),
+            _query_strides.data(),
+            _key_shape.data(),
+            _key_strides.data(),
+            _value_shape.data(),
+            _value_strides.data(),
+            _total_kv_shape.data(),
+            _total_kv_strides.data(),
+            _dtype,
+            _scale,
+            _is_causal,
+            static_cast<cudaStream_t>(stream));
     }
 
     static infiniStatus_t create(infiniopHandle_t handle,
