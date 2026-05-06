@@ -1,6 +1,5 @@
 add_rules("mode.debug", "mode.release")
 add_requires("boost", {configs = {stacktrace = true}})
-add_requires("pybind11")
 
 -- Define color codes
 local GREEN = '\27[0;32m'
@@ -570,7 +569,26 @@ target("_infinicore")
 
     set_default(false)
     add_rules("python.library", {soabi = true})
-    add_packages("pybind11")
+    -- Use the active Python environment; xmake's pybind11 package self-test
+    -- links libpython and breaks when Python is built as a static library.
+    on_load(function (target)
+        local script = table.concat({
+            "import sysconfig",
+            "import pybind11",
+            "print(sysconfig.get_path('include'))",
+            "print(pybind11.get_include())",
+        }, "; ")
+
+        local includedirs = os.iorunv("python3", {"-c", script})
+        assert(includedirs ~= "", "pybind11 is required in the active Python environment to build the Python bindings")
+
+        for _, includedir in ipairs(includedirs:split("\n")) do
+            includedir = includedir:trim()
+            if includedir ~= "" and includedir ~= "None" then
+                target:add("includedirs", includedir)
+            end
+        end
+    end)
     set_languages("cxx17")
 
     add_deps("infinicore_cpp_api")
