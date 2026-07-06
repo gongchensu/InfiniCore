@@ -1,6 +1,6 @@
 #include "stream_ordered_allocator.hpp"
 
-#include <infinirt.h>
+#include "../../../bridge/infini/rt.hpp"
 
 #include "../../utils.hpp"
 
@@ -12,7 +12,11 @@ std::byte *StreamOrderedAllocator::allocate(size_t size) {
         return nullptr;
     }
     void *ptr = nullptr;
-    INFINICORE_CHECK_ERROR(infinirtMallocAsync(&ptr, size, context::getStream()));
+    if (device_.getType() != Device::Type::CPU) {
+        INFINICORE_CHECK_ERROR(bridge::infini::rt::translate(infini::rt::runtime::MallocAsync(&ptr, size, context::getStream())));
+    } else {
+        INFINICORE_CHECK_ERROR(bridge::infini::rt::translate(infini::rt::runtime::Malloc(&ptr, size)));
+    }
     return (std::byte *)ptr;
 }
 
@@ -20,6 +24,10 @@ void StreamOrderedAllocator::deallocate(std::byte *ptr) {
     if (ptr == nullptr) {
         return;
     }
-    INFINICORE_CHECK_ERROR(infinirtFreeAsync(ptr, context::getStream()));
+    if (device_.getType() != Device::Type::CPU) {
+        INFINICORE_CHECK_ERROR(bridge::infini::rt::translate(infini::rt::runtime::FreeAsync(ptr, context::getStream())));
+    } else {
+        INFINICORE_CHECK_ERROR(bridge::infini::rt::translate(infini::rt::runtime::Free(ptr)));
+    }
 }
 } // namespace infinicore

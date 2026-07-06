@@ -2,8 +2,11 @@
 
 #include "../utils.hpp"
 #include "infinicore/context/context.hpp"
+
+#ifdef USE_INFINIRT_GRAPH
 #include "standalone_infinirt_graph_bridge.hpp"
 #include <infinirt.h>
+#endif
 
 namespace infinicore::graph {
 
@@ -32,6 +35,7 @@ DispatchableGraphOperator::~DispatchableGraphOperator() {
  * Graph
  * ========================= */
 
+#ifdef USE_INFINIRT_GRAPH
 struct Graph::DeviceGraph {
     infinirtGraph_t graph = nullptr;
     infinirtGraphExec_t exec = nullptr;
@@ -69,17 +73,22 @@ struct Graph::DeviceGraph {
         }
     }
 };
+#else
+struct Graph::DeviceGraph {};
+#endif
 
 Graph::Graph() {
 }
 
 void Graph::run() const {
+#ifdef USE_INFINIRT_GRAPH
     if (device_graph_ != nullptr && device_graph_.get()->exec != nullptr) {
         device_graph_.get()->launch();
-    } else {
-        for (auto &op : op_list_) {
-            op->run();
-        }
+        return;
+    }
+#endif
+    for (auto &op : op_list_) {
+        op->run();
     }
 }
 
@@ -88,6 +97,7 @@ void Graph::add_operator(std::shared_ptr<GraphOperator> op) {
 }
 
 void Graph::instantiate() {
+#ifdef USE_INFINIRT_GRAPH
     // Reset device graph
     device_graph_ = std::make_unique<DeviceGraph>();
     device_graph_->standalone = standalone_infinirt::available(context::getDevice());
@@ -150,6 +160,7 @@ void Graph::instantiate() {
         }
         device_graph_.reset();
     }
+#endif
 }
 
 Graph::~Graph() = default;
