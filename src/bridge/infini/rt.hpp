@@ -1,6 +1,6 @@
 #pragma once
 
-#include "infinicore.h"
+#include "infinirt.h"
 
 #include <infini/rt.h>
 
@@ -21,6 +21,22 @@ inline ::infini::rt::Device::Type translate(infiniDevice_t device) {
         return ::infini::rt::Device::Type::kCpu;
     case INFINI_DEVICE_NVIDIA:
         return ::infini::rt::Device::Type::kNvidia;
+    case INFINI_DEVICE_CAMBRICON:
+        return ::infini::rt::Device::Type::kCambricon;
+    case INFINI_DEVICE_ASCEND:
+        return ::infini::rt::Device::Type::kAscend;
+    case INFINI_DEVICE_METAX:
+        return ::infini::rt::Device::Type::kMetax;
+    case INFINI_DEVICE_MOORE:
+        return ::infini::rt::Device::Type::kMoore;
+    case INFINI_DEVICE_ILUVATAR:
+        return ::infini::rt::Device::Type::kIluvatar;
+    case INFINI_DEVICE_KUNLUN:
+        return ::infini::rt::Device::Type::kKunlun;
+    case INFINI_DEVICE_HYGON:
+        return ::infini::rt::Device::Type::kHygon;
+    case INFINI_DEVICE_QY:
+        return ::infini::rt::Device::Type::kQy;
     default:
         return ::infini::rt::Device::Type::kCount;
     }
@@ -32,9 +48,33 @@ inline infiniDevice_t translate(::infini::rt::Device::Type device) {
         return INFINI_DEVICE_CPU;
     case ::infini::rt::Device::Type::kNvidia:
         return INFINI_DEVICE_NVIDIA;
+    case ::infini::rt::Device::Type::kCambricon:
+        return INFINI_DEVICE_CAMBRICON;
+    case ::infini::rt::Device::Type::kAscend:
+        return INFINI_DEVICE_ASCEND;
+    case ::infini::rt::Device::Type::kMetax:
+        return INFINI_DEVICE_METAX;
+    case ::infini::rt::Device::Type::kMoore:
+        return INFINI_DEVICE_MOORE;
+    case ::infini::rt::Device::Type::kIluvatar:
+        return INFINI_DEVICE_ILUVATAR;
+    case ::infini::rt::Device::Type::kKunlun:
+        return INFINI_DEVICE_KUNLUN;
+    case ::infini::rt::Device::Type::kHygon:
+        return INFINI_DEVICE_HYGON;
+    case ::infini::rt::Device::Type::kQy:
+        return INFINI_DEVICE_QY;
     default:
         return INFINI_DEVICE_TYPE_COUNT;
     }
+}
+
+inline ::infini::rt::runtime::Stream to_rt_stream(infinirtStream_t stream) {
+    return reinterpret_cast<::infini::rt::runtime::Stream>(stream);
+}
+
+inline infinirtStream_t to_core_stream(::infini::rt::runtime::Stream stream) {
+    return reinterpret_cast<infinirtStream_t>(stream);
 }
 
 } // namespace infinicore::bridge::infini::rt
