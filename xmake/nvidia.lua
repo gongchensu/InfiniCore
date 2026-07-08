@@ -246,7 +246,6 @@ target_end()
 
 target("infiniccl-nvidia")
     set_kind("static")
-    add_deps("infinirt")
     on_install(function (target) end)
     if has_config("ccl") then
         set_policy("build.cuda.devlink", true)
